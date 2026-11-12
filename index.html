@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>SmartStudy - HEMIS & Ovozli Dars Jadvali</title>
+    <title>SmartStudy - HEMIS & Mayin Ovozli Dars Jadvali</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
 </head>
@@ -31,17 +31,37 @@
     <main class="max-w-md mx-auto px-4 pt-4 space-y-5">
 
         <!-- HEMIS Sozlamalar Paneli -->
-        <div id="hemisCard" class="hidden bg-slate-900 border border-blue-500/30 rounded-2xl p-4 space-y-3 shadow-lg">
+        <div id="hemisCard" class="hidden bg-slate-900 border border-blue-500/40 rounded-2xl p-4 space-y-3 shadow-xl">
             <div class="flex justify-between items-center">
-                <span class="text-xs font-bold text-blue-400 uppercase">🎓 HEMIS Profilni Ulanish</span>
-                <button onclick="toggleHemisModal()" class="text-slate-400 text-xs">✕ Yopish</button>
+                <span class="text-xs font-bold text-blue-400 uppercase">🎓 HEMIS Profilga Kirish</span>
+                <button onclick="toggleHemisModal()" class="text-slate-400 hover:text-white text-xs px-2 py-1">✕ Yopish</button>
             </div>
-            <div class="space-y-2">
-                <input type="text" id="hemisDomain" placeholder="Universitet HEMIS domeni (masalan: student.tuit.uz)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                <input type="text" id="hemisLogin" placeholder="HEMIS Login (ID yoki Tel)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                <input type="password" id="hemisPass" placeholder="HEMIS Parol" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                <button onclick="syncHemisData()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-xl text-xs transition">
-                    Jadvalni HEMIS'dan yuklab olish
+            
+            <div class="space-y-2.5">
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Universitet HEMIS manzili</label>
+                    <input type="text" id="hemisDomain" placeholder="Masalan: student.samdu.uz" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Talaba ID (Login)</label>
+                    <input type="text" id="hemisLogin" placeholder="Masalan: 39221110045" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">Parol</label>
+                    <div class="relative flex items-center">
+                        <input type="password" id="hemisPass" placeholder="HEMIS parolingiz..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-3 pr-10 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                        <button type="button" onclick="togglePasswordVisibility()" id="eyeBtn" class="absolute right-2.5 text-slate-400 hover:text-white p-1 text-sm" title="Parolni ko'rish/yashirish">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <p id="hemisStatusMsg" class="text-[11px] text-amber-300 hidden"></p>
+
+                <button onclick="connectHemis()" id="hemisConnectBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md">
+                    Kirish va jadvalni yuklash
                 </button>
             </div>
         </div>
@@ -62,12 +82,12 @@
             </div>
             
             <!-- Keyingisi tugmasi chiqadigan qism -->
-            <div id="readingControlPanel" class="hidden bg-emerald-900/60 border border-emerald-400/40 rounded-xl p-3 flex items-center justify-between">
-                <div>
-                    <span class="text-[10px] uppercase font-bold text-emerald-200 block">Hozir o'qilmoqda:</span>
+            <div id="readingControlPanel" class="hidden bg-emerald-950/70 border border-emerald-300/40 rounded-xl p-3 flex items-center justify-between gap-2">
+                <div class="flex-1">
+                    <span class="text-[10px] uppercase font-bold text-emerald-300 block">Hozir o'qilmoqda:</span>
                     <p id="currentReadingText" class="text-xs font-semibold text-white">Tayyorlanmoqda...</p>
                 </div>
-                <button onclick="nextStepLesson()" class="bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg shadow active:scale-95 transition">
+                <button onclick="nextStepLesson()" class="bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg shadow active:scale-95 transition flex-shrink-0">
                     Keyingisi ➡️
                 </button>
             </div>
@@ -136,23 +156,114 @@
 
         document.getElementById('todayInfo').innerText = `Bugun: ${daysOfWeek.find(d => d.id === realTodayId).full}`;
 
-        function toggleHemisModal() {
-            const card = document.getElementById('hemisCard');
-            card.classList.toggle('hidden');
+        // Oldin kiritilgan HEMIS ma'lumotlarini tiklash
+        if (localStorage.getItem('hemis_domain')) {
+            document.getElementById('hemisDomain').value = localStorage.getItem('hemis_domain');
+            document.getElementById('hemisLogin').value = localStorage.getItem('hemis_user') || '';
         }
 
-        function syncHemisData() {
-            const domain = document.getElementById('hemisDomain').value.trim();
+        // Parolni ko'rish / yashirish (Ko'zcha tugmasi)
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('hemisPass');
+            const eyeBtn = document.getElementById('eyeBtn');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeBtn.innerText = '🙈'; // Parol ochiq holatda
+            } else {
+                passInput.type = 'password';
+                eyeBtn.innerText = '👁️'; // Parol yashirin holatda
+            }
+        }
+
+        function toggleHemisModal() {
+            document.getElementById('hemisCard').classList.toggle('hidden');
+        }
+
+        // HEMIS API ulanish urinishi
+        async function connectHemis() {
+            let domain = document.getElementById('hemisDomain').value.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
             const login = document.getElementById('hemisLogin').value.trim();
-            if(!domain || !login) {
-                alert("Iltimos, HEMIS domeni va loginni kiriting!");
+            const password = document.getElementById('hemisPass').value.trim();
+            const statusMsg = document.getElementById('hemisStatusMsg');
+            const btn = document.getElementById('hemisConnectBtn');
+
+            if (!domain || !login || !password) {
+                statusMsg.innerText = "⚠️ Barcha maydonlarni (domen, login, parol) to'ldiring!";
+                statusMsg.classList.remove('hidden');
                 return;
             }
-            localStorage.setItem('hemis_user', login);
+
             localStorage.setItem('hemis_domain', domain);
-            alert("HEMIS profili muvaffaqiyatli bog'landi!");
-            toggleHemisModal();
-            speakText("HEMIS tizimi ulandi.");
+            localStorage.setItem('hemis_user', login);
+
+            btn.innerText = "Ulanmoqda...";
+            btn.disabled = true;
+            statusMsg.classList.remove('hidden');
+            statusMsg.innerText = "⏳ Universitet HEMIS serveriga ulanilmoqda...";
+
+            try {
+                // HEMIS standart student API manzili
+                const response = await fetch(`https://${domain}/rest/v1/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login: login, password: password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.data && result.data.token) {
+                    localStorage.setItem('hemis_token', result.data.token);
+                    statusMsg.innerText = "✅ Muvaffaqiyatli kirdingiz! Dars jadvali yuklanmoqda...";
+                    await fetchHemisSchedule(domain, result.data.token);
+                } else {
+                    statusMsg.innerText = "❌ Login yoki parol noto'g'ri, yoki HEMIS API yopiq.";
+                }
+            } catch (error) {
+                // Brauzer xavfsizlik (CORS) cheklovi bo'lganda
+                statusMsg.innerHTML = `⚠️ Universitet serveri (<b>${domain}</b>) tashqi brauzerdan to'g'ridan-to'g'ri ulanishni blokladi (CORS himoyasi). Ma'lumotlaringiz saqlandi, darslarni pastdan qo'lda kiritishingiz mumkin.`;
+            } finally {
+                btn.innerText = "Kirish va jadvalni yuklash";
+                btn.disabled = false;
+            }
+        }
+
+        async function fetchHemisSchedule(domain, token) {
+            try {
+                const res = await fetch(`https://${domain}/rest/v1/education/schedule`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const json = await res.json();
+                if (json.data && Array.isArray(json.data)) {
+                    // HEMIS jadvalini haftalik formatga o'tkazish
+                    const newSchedule = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 0: [] };
+                    json.data.forEach(item => {
+                        const date = new Date(item.lesson_date * 1000);
+                        const dayId = date.getDay();
+                        const time = item.lessonPair ? item.lessonPair.start_time : "08:30";
+                        const name = item.subject ? item.subject.name : "Fan";
+                        if (!newSchedule[dayId].some(d => d.time === time && d.name === name)) {
+                            newSchedule[dayId].push({ time, name, done: false });
+                        }
+                    });
+                    weeklyData = newSchedule;
+                    localStorage.setItem('offlineStudyData', JSON.stringify(weeklyData));
+                    renderLessons();
+                    toggleHemisModal();
+                    speakText("HEMIS dars jadvali muvaffaqiyatli yuklandi.");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Ovozlar ro'yxatini oldindan yuklash
+        let availableVoices = [];
+        function loadVoices() {
+            availableVoices = window.speechSynthesis.getVoices();
+        }
+        if ('speechSynthesis' in window) {
+            loadVoices();
+            window.speechSynthesis.onvoiceschanged = loadVoices;
         }
 
         function initAudioEngine() {
@@ -160,17 +271,36 @@
             const btn = document.getElementById('audioStatusBtn');
             btn.innerText = "🔊 Ovoz faol";
             btn.className = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-3 py-1.5 rounded-full";
-            speakText("Ovozli eslatma faollashtirildi.");
+            speakText("Ovozli yordamchi faollashtirildi.");
         }
 
+        // Mayin va tiniq ovozda o'qish funksiyasi
         function speakText(text) {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.rate = 0.95;
-            const voices = window.speechSynthesis.getVoices();
-            const voice = voices.find(v => v.lang.includes('uz') || v.lang.includes('ru'));
-            if (voice) msg.voice = voice;
+
+            // Matnni tiniq talaffuz qilishi uchun tinish belgilarini moslaymiz
+            const cleanText = text.replace(/:/g, ' dan ').replace(/-/g, ' ');
+            const msg = new SpeechSynthesisUtterance(cleanText);
+
+            // Mayinlik va tiniqlik sozlamalari
+            msg.rate = 0.88;  // Biroz sokin va dona-dona gapiradi
+            msg.pitch = 1.08; // Biroz mayinroq va yoqimli ohang
+            msg.volume = 1.0;
+
+            if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
+
+            // Eng sifatli (Google / Natural / Ayol) ovozni qidirish
+            const preferredVoice = 
+                availableVoices.find(v => v.lang.includes('uz')) ||
+                availableVoices.find(v => v.name.includes('Google') && v.lang.includes('tr')) || // Turk tili o'zbekcha talaffuzga eng yaqin va mayin
+                availableVoices.find(v => v.name.includes('Google') && v.lang.includes('ru')) ||
+                availableVoices.find(v => v.lang.includes('tr') || v.lang.includes('ru'));
+
+            if (preferredVoice) {
+                msg.voice = preferredVoice;
+            }
+
             window.speechSynthesis.speak(msg);
         }
 
@@ -185,7 +315,7 @@
                     renderTabs(); 
                     renderLessons(); 
                 };
-                btn.className = `flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition ${day.id === selectedDayId ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800'}`;
+                btn.className = `flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition ${day.id === selectedDayId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 border border-slate-800'}`;
                 btn.innerText = day.short;
                 container.appendChild(btn);
             });
@@ -200,18 +330,23 @@
             const container = document.getElementById('lessonsContainer');
             container.innerHTML = '';
 
+            if (lessons.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Bu kunga darslar kiritilmagan</p>`;
+                return;
+            }
+
             lessons.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = `flex items-center justify-between p-3.5 rounded-2xl border ${item.done ? 'bg-slate-900/40 opacity-50' : 'bg-slate-900 border-slate-800'}`;
                 card.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1" onclick="toggleDone(${index})">
+                    <div class="flex items-center gap-3 flex-1 cursor-pointer" onclick="toggleDone(${index})">
                         <input type="checkbox" ${item.done ? 'checked' : ''} class="w-5 h-5 accent-emerald-500 rounded-md">
                         <div>
                             <span class="text-xs font-mono font-bold text-emerald-400">${item.time}</span>
                             <p class="text-sm font-semibold text-slate-100">${item.name}</p>
                         </div>
                     </div>
-                    <button onclick="removeLesson(${index})" class="text-red-400 p-2 text-xs">✕</button>
+                    <button onclick="removeLesson(${index})" class="text-red-400 hover:text-red-300 p-2 text-xs">✕</button>
                 `;
                 container.appendChild(card);
             });
@@ -220,7 +355,7 @@
         function startStepByStepReading() {
             activeReadingList = weeklyData[selectedDayId] || [];
             if (activeReadingList.length === 0) {
-                speakText("Bu kunda darslar mavjud emas.");
+                speakText("Bugun darslar mavjud emas.");
                 return;
             }
             currentReadingIndex = 0;
@@ -231,13 +366,14 @@
         function readCurrentIndexLesson() {
             if (currentReadingIndex < activeReadingList.length) {
                 const lesson = activeReadingList[currentReadingIndex];
-                const info = `${currentReadingIndex + 1}-dars. Soat ${lesson.time} da, ${lesson.name}`;
-                document.getElementById('currentReadingText').innerText = info;
-                speakText(info);
+                const displayInfo = `${currentReadingIndex + 1}-dars. Soat ${lesson.time} — ${lesson.name}`;
+                const voiceInfo = `${currentReadingIndex + 1}-dars. Soat ${lesson.time} da, ${lesson.name} fani.`;
+                document.getElementById('currentReadingText').innerText = displayInfo;
+                speakText(voiceInfo);
             } else {
                 document.getElementById('currentReadingText').innerText = "Barcha darslar o'qib bo'lindi!";
-                speakText("Kunlik barcha darslar tugadi.");
-                setTimeout(stopReadingPanel, 3000);
+                speakText("Bugungi barcha darslar tugadi.");
+                setTimeout(stopReadingPanel, 2500);
             }
         }
 
@@ -248,7 +384,7 @@
 
         function stopReadingPanel() {
             document.getElementById('readingControlPanel').classList.add('hidden');
-            window.speechSynthesis.cancel();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         }
 
         document.getElementById('addLessonForm').addEventListener('submit', (e) => {
@@ -261,7 +397,7 @@
             localStorage.setItem('offlineStudyData', JSON.stringify(weeklyData));
             renderLessons();
             e.target.reset();
-            speakText("Dars saqlandi.");
+            speakText("Yangi dars saqlandi.");
         });
 
         function toggleDone(index) {
@@ -287,7 +423,7 @@
                 todaysLessons.forEach(lesson => {
                     if (lesson.time === currentHM && !lesson.done) {
                         lastCheckedMinute = minuteKey;
-                        speakText(`Diqqat! Soat ${lesson.time} bo'ldi. ${lesson.name} darsini boshlash vaqti keldi!`);
+                        speakText(`Diqqat! Soat ${lesson.time} bo'ldi. ${lesson.name} darsini boshlash vaqti keldi.`);
                     }
                 });
             }
@@ -314,7 +450,7 @@
                 if (!targetEndTime) targetEndTime = Date.now() + 25 * 60 * 1000;
                 timerRunning = true;
                 document.getElementById('startBtn').innerText = "Pauza";
-                speakText("Taymer boshlandi.");
+                speakText("Taymer ishga tushdi.");
                 
                 timerInterval = setInterval(() => {
                     const remainingSec = Math.round((targetEndTime - Date.now()) / 1000);
@@ -325,7 +461,7 @@
                         timerRunning = false;
                         updateTimerView(0);
                         document.getElementById('startBtn').innerText = "Boshlash";
-                        speakText("Vaqt tugadi!");
+                        speakText("Vaqt tugadi! Biroz dam oling.");
                     }
                 }, 1000);
             }
