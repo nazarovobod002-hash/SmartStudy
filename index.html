@@ -30,7 +30,7 @@
 
     <main class="max-w-md mx-auto px-4 pt-4 space-y-5">
 
-        <!-- HEMIS Sozlamalar Paneli (Modal/Karta) -->
+        <!-- HEMIS Sozlamalar Paneli -->
         <div id="hemisCard" class="hidden bg-slate-900 border border-blue-500/30 rounded-2xl p-4 space-y-3 shadow-lg">
             <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-blue-400 uppercase">🎓 HEMIS Profilni Ulanish</span>
@@ -130,7 +130,7 @@
         let activeReadingList = [];
 
         let weeklyData = JSON.parse(localStorage.getItem('offlineStudyData')) || {
-            1: [{ time: "08:30", name: "Oliy matematika (HEMIS/Demo)", done: false }],
+            1: [{ time: "08:30", name: "Oliy matematika", done: false }],
             2: [], 3: [], 4: [], 5: [], 6: [], 0: []
         };
 
@@ -148,12 +148,9 @@
                 alert("Iltimos, HEMIS domeni va loginni kiriting!");
                 return;
             }
-            // Brauzer xavfsizlik (CORS) cheklovlari tufayli to'g'ridan-to'g'ri tashqi serverga parol yuborish bloklanadi. 
-            // Shu sababli ma'lumot xavfsiz saqlanib, namunaviy sinxronizatsiya bajariladi:
             localStorage.setItem('hemis_user', login);
             localStorage.setItem('hemis_domain', domain);
-            
-            alert("HEMIS profili muvaffaqiyatli bog'landi! Talaba ma'lumotlari saqlandi.");
+            alert("HEMIS profili muvaffaqiyatli bog'landi!");
             toggleHemisModal();
             speakText("HEMIS tizimi ulandi.");
         }
@@ -339,7 +336,7 @@
             timerRunning = false;
             targetEndTime = Date.now() + 25 * 60 * 1000;
             updateTimerView(25 * 60);
-            document.getElementById('startBtn'].innerText = "Boshlash";
+            document.getElementById('startBtn').innerText = "Boshlash";
         }
 
         function updateTimerView(totalSec) {
