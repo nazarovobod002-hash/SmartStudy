@@ -48,11 +48,12 @@
                     <input type="text" id="hemisLogin" placeholder="Masalan: 39221110045" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
                 </div>
 
+                <!-- KO'Z 👁️ TUGMASI BILAN PAROL QISMI -->
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Parol</label>
                     <div class="relative flex items-center">
                         <input type="password" id="hemisPass" placeholder="HEMIS parolingiz..." class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-3 pr-10 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
-                        <button type="button" onclick="togglePasswordVisibility()" id="eyeBtn" class="absolute right-2.5 text-slate-400 hover:text-white p-1 text-sm" title="Parolni ko'rish/yashirish">
+                        <button type="button" onclick="togglePasswordVisibility()" id="eyeBtn" class="absolute right-3 text-base select-none">
                             👁️
                         </button>
                     </div>
@@ -156,22 +157,21 @@
 
         document.getElementById('todayInfo').innerText = `Bugun: ${daysOfWeek.find(d => d.id === realTodayId).full}`;
 
-        // Oldin kiritilgan HEMIS ma'lumotlarini tiklash
         if (localStorage.getItem('hemis_domain')) {
             document.getElementById('hemisDomain').value = localStorage.getItem('hemis_domain');
             document.getElementById('hemisLogin').value = localStorage.getItem('hemis_user') || '';
         }
 
-        // Parolni ko'rish / yashirish (Ko'zcha tugmasi)
+        // Parolni ko'rsatish / yashirish funksiyasi
         function togglePasswordVisibility() {
             const passInput = document.getElementById('hemisPass');
             const eyeBtn = document.getElementById('eyeBtn');
             if (passInput.type === 'password') {
                 passInput.type = 'text';
-                eyeBtn.innerText = '🙈'; // Parol ochiq holatda
+                eyeBtn.innerText = '🙈';
             } else {
                 passInput.type = 'password';
-                eyeBtn.innerText = '👁️'; // Parol yashirin holatda
+                eyeBtn.innerText = '👁️';
             }
         }
 
@@ -179,7 +179,6 @@
             document.getElementById('hemisCard').classList.toggle('hidden');
         }
 
-        // HEMIS API ulanish urinishi
         async function connectHemis() {
             let domain = document.getElementById('hemisDomain').value.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
             const login = document.getElementById('hemisLogin').value.trim();
@@ -188,7 +187,7 @@
             const btn = document.getElementById('hemisConnectBtn');
 
             if (!domain || !login || !password) {
-                statusMsg.innerText = "⚠️ Barcha maydonlarni (domen, login, parol) to'ldiring!";
+                statusMsg.innerText = "⚠️ Barcha maydonlarni to'ldiring!";
                 statusMsg.classList.remove('hidden');
                 return;
             }
@@ -199,10 +198,9 @@
             btn.innerText = "Ulanmoqda...";
             btn.disabled = true;
             statusMsg.classList.remove('hidden');
-            statusMsg.innerText = "⏳ Universitet HEMIS serveriga ulanilmoqda...";
+            statusMsg.innerText = "⏳ HEMIS serveriga ulanilmoqda...";
 
             try {
-                // HEMIS standart student API manzili
                 const response = await fetch(`https://${domain}/rest/v1/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -213,14 +211,13 @@
 
                 if (response.ok && result.data && result.data.token) {
                     localStorage.setItem('hemis_token', result.data.token);
-                    statusMsg.innerText = "✅ Muvaffaqiyatli kirdingiz! Dars jadvali yuklanmoqda...";
+                    statusMsg.innerText = "✅ Muvaffaqiyatli kirdingiz!";
                     await fetchHemisSchedule(domain, result.data.token);
                 } else {
-                    statusMsg.innerText = "❌ Login yoki parol noto'g'ri, yoki HEMIS API yopiq.";
+                    statusMsg.innerText = "❌ Login yoki parol noto'g'ri, yoki API bloklangan.";
                 }
             } catch (error) {
-                // Brauzer xavfsizlik (CORS) cheklovi bo'lganda
-                statusMsg.innerHTML = `⚠️ Universitet serveri (<b>${domain}</b>) tashqi brauzerdan to'g'ridan-to'g'ri ulanishni blokladi (CORS himoyasi). Ma'lumotlaringiz saqlandi, darslarni pastdan qo'lda kiritishingiz mumkin.`;
+                statusMsg.innerHTML = `⚠️ Universitet serveri (<b>${domain}</b>) tashqi brauzerdan ulanishni cheklagan (CORS). Ma'lumotlaringiz saqlandi, darslarni pastdan kiritishingiz mumkin.`;
             } finally {
                 btn.innerText = "Kirish va jadvalni yuklash";
                 btn.disabled = false;
@@ -234,7 +231,6 @@
                 });
                 const json = await res.json();
                 if (json.data && Array.isArray(json.data)) {
-                    // HEMIS jadvalini haftalik formatga o'tkazish
                     const newSchedule = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 0: [] };
                     json.data.forEach(item => {
                         const date = new Date(item.lesson_date * 1000);
@@ -249,14 +245,11 @@
                     localStorage.setItem('offlineStudyData', JSON.stringify(weeklyData));
                     renderLessons();
                     toggleHemisModal();
-                    speakText("HEMIS dars jadvali muvaffaqiyatli yuklandi.");
+                    speakText("Jadval yuklandi.");
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) {}
         }
 
-        // Ovozlar ro'yxatini oldindan yuklash
         let availableVoices = [];
         function loadVoices() {
             availableVoices = window.speechSynthesis.getVoices();
@@ -274,33 +267,23 @@
             speakText("Ovozli yordamchi faollashtirildi.");
         }
 
-        // Mayin va tiniq ovozda o'qish funksiyasi
         function speakText(text) {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
-
-            // Matnni tiniq talaffuz qilishi uchun tinish belgilarini moslaymiz
             const cleanText = text.replace(/:/g, ' dan ').replace(/-/g, ' ');
             const msg = new SpeechSynthesisUtterance(cleanText);
-
-            // Mayinlik va tiniqlik sozlamalari
-            msg.rate = 0.88;  // Biroz sokin va dona-dona gapiradi
-            msg.pitch = 1.08; // Biroz mayinroq va yoqimli ohang
+            msg.rate = 0.88;
+            msg.pitch = 1.08;
             msg.volume = 1.0;
 
             if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
-
-            // Eng sifatli (Google / Natural / Ayol) ovozni qidirish
             const preferredVoice = 
                 availableVoices.find(v => v.lang.includes('uz')) ||
-                availableVoices.find(v => v.name.includes('Google') && v.lang.includes('tr')) || // Turk tili o'zbekcha talaffuzga eng yaqin va mayin
+                availableVoices.find(v => v.name.includes('Google') && v.lang.includes('tr')) ||
                 availableVoices.find(v => v.name.includes('Google') && v.lang.includes('ru')) ||
                 availableVoices.find(v => v.lang.includes('tr') || v.lang.includes('ru'));
 
-            if (preferredVoice) {
-                msg.voice = preferredVoice;
-            }
-
+            if (preferredVoice) msg.voice = preferredVoice;
             window.speechSynthesis.speak(msg);
         }
 
