@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>SmartStudy - HEMIS & Mayin Ovozli Dars Jadvali</title>
+    <title>SmartStudy - Ovozli Dars Jadvali</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
 </head>
@@ -48,7 +48,6 @@
                     <input type="text" id="hemisLogin" placeholder="Masalan: 39221110045" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
                 </div>
 
-                <!-- KO'Z 👁️ TUGMASI BILAN PAROL QISMI -->
                 <div>
                     <label class="text-[10px] text-slate-400 block mb-1">Parol</label>
                     <div class="relative flex items-center">
@@ -162,7 +161,6 @@
             document.getElementById('hemisLogin').value = localStorage.getItem('hemis_user') || '';
         }
 
-        // Parolni ko'rsatish / yashirish funksiyasi
         function togglePasswordVisibility() {
             const passInput = document.getElementById('hemisPass');
             const eyeBtn = document.getElementById('eyeBtn');
@@ -267,21 +265,26 @@
             speakText("Ovozli yordamchi faollashtirildi.");
         }
 
+        // Tiniq va sokin o'qish uchun optimallashtirilgan ovoz
         function speakText(text) {
             if (!('speechSynthesis' in window)) return;
             window.speechSynthesis.cancel();
+            
             const cleanText = text.replace(/:/g, ' dan ').replace(/-/g, ' ');
             const msg = new SpeechSynthesisUtterance(cleanText);
-            msg.rate = 0.88;
-            msg.pitch = 1.08;
+            
+            // Ovozni qopol qilmaslik uchun sekinroq va yoqimli ohidda sozlaymiz
+            msg.rate = 0.82; 
+            msg.pitch = 1.0; 
             msg.volume = 1.0;
 
             if (availableVoices.length === 0) availableVoices = window.speechSynthesis.getVoices();
+            
+            // O'zbek yoki eng yumshoq rus/turk ovozini tanlash
             const preferredVoice = 
                 availableVoices.find(v => v.lang.includes('uz')) ||
-                availableVoices.find(v => v.name.includes('Google') && v.lang.includes('tr')) ||
                 availableVoices.find(v => v.name.includes('Google') && v.lang.includes('ru')) ||
-                availableVoices.find(v => v.lang.includes('tr') || v.lang.includes('ru'));
+                availableVoices.find(v => v.lang.includes('ru') || v.lang.includes('tr'));
 
             if (preferredVoice) msg.voice = preferredVoice;
             window.speechSynthesis.speak(msg);
@@ -350,7 +353,8 @@
             if (currentReadingIndex < activeReadingList.length) {
                 const lesson = activeReadingList[currentReadingIndex];
                 const displayInfo = `${currentReadingIndex + 1}-dars. Soat ${lesson.time} — ${lesson.name}`;
-                const voiceInfo = `${currentReadingIndex + 1}-dars. Soat ${lesson.time} da, ${lesson.name} fani.`;
+                // Toliq va aniq o'qishi uchun to'liq jumla shaklida beramiz:
+                const voiceInfo = `Navbatdagi ${currentReadingIndex + 1}-dars. Soat ${lesson.time} da, ${lesson.name} fani boshlanadi.`;
                 document.getElementById('currentReadingText').innerText = displayInfo;
                 speakText(voiceInfo);
             } else {
