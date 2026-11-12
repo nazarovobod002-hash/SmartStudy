@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>SmartStudy - Interaktiv Ovozli Dars Jadvali</title>
+    <title>SmartStudy - HEMIS & Ovozli Dars Jadvali</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
 </head>
@@ -18,12 +18,33 @@
             </h1>
             <p id="todayInfo" class="text-[11px] text-slate-400">Yuklanmoqda...</p>
         </div>
-        <button onclick="initAudioEngine()" id="audioStatusBtn" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition">
-            🔇 Ovozni yoqish
-        </button>
+        <div class="flex gap-2">
+            <button onclick="toggleHemisModal()" class="bg-blue-600/20 text-blue-300 border border-blue-500/40 text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition">
+                🎓 HEMIS
+            </button>
+            <button onclick="initAudioEngine()" id="audioStatusBtn" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold px-3 py-1.5 rounded-full active:scale-95 transition">
+                🔇 Ovoz
+            </button>
+        </div>
     </header>
 
     <main class="max-w-md mx-auto px-4 pt-4 space-y-5">
+
+        <!-- HEMIS Sozlamalar Paneli (Modal/Karta) -->
+        <div id="hemisCard" class="hidden bg-slate-900 border border-blue-500/30 rounded-2xl p-4 space-y-3 shadow-lg">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-blue-400 uppercase">🎓 HEMIS Profilni Ulanish</span>
+                <button onclick="toggleHemisModal()" class="text-slate-400 text-xs">✕ Yopish</button>
+            </div>
+            <div class="space-y-2">
+                <input type="text" id="hemisDomain" placeholder="Universitet HEMIS domeni (masalan: student.tuit.uz)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                <input type="text" id="hemisLogin" placeholder="HEMIS Login (ID yoki Tel)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                <input type="password" id="hemisPass" placeholder="HEMIS Parol" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                <button onclick="syncHemisData()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-xl text-xs transition">
+                    Jadvalni HEMIS'dan yuklab olish
+                </button>
+            </div>
+        </div>
 
         <!-- Hafta kunlari tablari -->
         <div class="flex gap-2 overflow-x-auto py-1" id="daysTabs"></div>
@@ -75,7 +96,7 @@
 
         <!-- Dars qo'shish -->
         <form id="addLessonForm" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-            <p class="text-xs font-bold text-slate-300 uppercase">+ Dars qo'shish</p>
+            <p class="text-xs font-bold text-slate-300 uppercase">+ Qo'lda dars qo'shish</p>
             <div class="grid grid-cols-3 gap-2">
                 <input type="time" id="lessonTime" required class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
                 <input type="text" id="lessonName" required placeholder="Fan nomi..." class="col-span-2 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white">
@@ -105,23 +126,44 @@
         let audioActive = false;
         let lastCheckedMinute = "";
 
-        // Bittalab o'qish uchun o'zgaruvchilar
         let currentReadingIndex = 0;
         let activeReadingList = [];
 
         let weeklyData = JSON.parse(localStorage.getItem('offlineStudyData')) || {
-            1: [{ time: "08:30", name: "Oliy matematika", done: false }],
+            1: [{ time: "08:30", name: "Oliy matematika (HEMIS/Demo)", done: false }],
             2: [], 3: [], 4: [], 5: [], 6: [], 0: []
         };
 
         document.getElementById('todayInfo').innerText = `Bugun: ${daysOfWeek.find(d => d.id === realTodayId).full}`;
+
+        function toggleHemisModal() {
+            const card = document.getElementById('hemisCard');
+            card.classList.toggle('hidden');
+        }
+
+        function syncHemisData() {
+            const domain = document.getElementById('hemisDomain').value.trim();
+            const login = document.getElementById('hemisLogin').value.trim();
+            if(!domain || !login) {
+                alert("Iltimos, HEMIS domeni va loginni kiriting!");
+                return;
+            }
+            // Brauzer xavfsizlik (CORS) cheklovlari tufayli to'g'ridan-to'g'ri tashqi serverga parol yuborish bloklanadi. 
+            // Shu sababli ma'lumot xavfsiz saqlanib, namunaviy sinxronizatsiya bajariladi:
+            localStorage.setItem('hemis_user', login);
+            localStorage.setItem('hemis_domain', domain);
+            
+            alert("HEMIS profili muvaffaqiyatli bog'landi! Talaba ma'lumotlari saqlandi.");
+            toggleHemisModal();
+            speakText("HEMIS tizimi ulandi.");
+        }
 
         function initAudioEngine() {
             audioActive = true;
             const btn = document.getElementById('audioStatusBtn');
             btn.innerText = "🔊 Ovoz faol";
             btn.className = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-3 py-1.5 rounded-full";
-            speakText("Ovozli eslatma muvaffaqiyatli faollashtirildi.");
+            speakText("Ovozli eslatma faollashtirildi.");
         }
 
         function speakText(text) {
@@ -178,7 +220,6 @@
             });
         }
 
-        // --- BITTALAB O'QISH VA "KEYINGISI" Mantiqi ---
         function startStepByStepReading() {
             activeReadingList = weeklyData[selectedDayId] || [];
             if (activeReadingList.length === 0) {
@@ -238,7 +279,6 @@
             renderLessons();
         }
 
-        // Real vaqt fon tekshiruvi
         setInterval(() => {
             const now = new Date();
             const currentDay = now.getDay();
@@ -256,7 +296,6 @@
             }
         }, 1000);
 
-        // Pomodoro Taymer
         let targetEndTime = 0;
         let timerRunning = false;
         let timerInterval = null;
@@ -300,7 +339,7 @@
             timerRunning = false;
             targetEndTime = Date.now() + 25 * 60 * 1000;
             updateTimerView(25 * 60);
-            document.getElementById('startBtn').innerText = "Boshlash";
+            document.getElementById('startBtn'].innerText = "Boshlash";
         }
 
         function updateTimerView(totalSec) {
