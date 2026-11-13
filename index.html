@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>SmartStudy - Dars Jadvali</title>
+    <title>SmartStudy - Bog'cha, Maktab va Talaba</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
 </head>
@@ -19,15 +19,21 @@
                 </svg>
             </button>
             <div>
-                <h1 class="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
-                    SmartStudy
-                </h1>
+                <div class="flex items-center gap-1.5">
+                    <h1 class="text-lg font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                        SmartStudy
+                    </h1>
+                    <span id="roleBadge" class="text-[10px] bg-slate-800 text-emerald-400 border border-slate-700 px-2 py-0.5 rounded-full font-bold">
+                        🎓 Talaba
+                    </span>
+                </div>
                 <p id="todayInfo" class="text-[11px] text-slate-400">Yuklanmoqda...</p>
             </div>
         </div>
 
         <div class="flex items-center gap-2">
-            <button onclick="toggleHemisModal()" class="bg-blue-600/20 text-blue-300 border border-blue-500/40 text-xs font-semibold px-2.5 py-1.5 rounded-full active:scale-95 transition">
+            <!-- Faqat Talaba rejimida ko'rinadigan HEMIS tugmasi -->
+            <button id="hemisHeaderBtn" onclick="toggleHemisModal()" class="bg-blue-600/20 text-blue-300 border border-blue-500/40 text-xs font-semibold px-2.5 py-1.5 rounded-full active:scale-95 transition">
                 🎓 HEMIS
             </button>
             <button onclick="initAudioEngine()" id="audioStatusBtn" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-semibold px-2.5 py-1.5 rounded-full active:scale-95 transition">
@@ -36,16 +42,45 @@
         </div>
     </header>
 
-    <!-- Yon menyu (Til sozlamalari) -->
+    <!-- Yon menyu (Rejim va Til sozlamalari) -->
     <div id="sideMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden transition-opacity duration-300">
         <div class="absolute left-0 top-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 p-5 flex flex-col justify-between shadow-2xl">
             <div class="space-y-6">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                    <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider">Sozlamalar</h2>
+                    <h2 id="t-menu-title" class="text-sm font-bold text-blue-400 uppercase tracking-wider">Sozlamalar</h2>
                     <button onclick="toggleMenu()" class="text-slate-400 hover:text-white text-base px-2 py-1">✕</button>
                 </div>
 
+                <!-- 1. Foydalanuvchi toifasi (Bog'cha / Maktab / Talaba) -->
                 <div class="space-y-2">
+                    <label id="t-menu-role" class="text-xs text-slate-400 font-semibold block">Kim uchun (Rejim):</label>
+                    <div class="grid grid-cols-1 gap-2">
+                        <button onclick="setRole('kindergarten'); toggleMenu();" id="role-kindergarten" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold border transition text-left">
+                            <span class="text-lg">🧸</span>
+                            <div>
+                                <div id="t-role-kg-name">Bog'cha</div>
+                                <div id="t-role-kg-desc" class="text-[10px] font-normal opacity-75">Mashg'ulot, ovqat va o'yin vaqti</div>
+                            </div>
+                        </button>
+                        <button onclick="setRole('school'); toggleMenu();" id="role-school" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold border transition text-left">
+                            <span class="text-lg">🎒</span>
+                            <div>
+                                <div id="t-role-sc-name">Maktab</div>
+                                <div id="t-role-sc-desc" class="text-[10px] font-normal opacity-75">45 daqiqalik darslar va tanaffus</div>
+                            </div>
+                        </button>
+                        <button onclick="setRole('student'); toggleMenu();" id="role-student" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold border transition text-left">
+                            <span class="text-lg">🎓</span>
+                            <div>
+                                <div id="t-role-st-name">Talaba</div>
+                                <div id="t-role-st-desc" class="text-[10px] font-normal opacity-75">80 daqiqalik para va HEMIS</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Tillar bo'limi -->
+                <div class="space-y-2 pt-2 border-t border-slate-800">
                     <label id="t-menu-lang" class="text-xs text-slate-400 font-semibold block">Tilni tanlang:</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button onclick="setLanguage('uz'); toggleMenu();" id="m-lang-uz" class="py-2 rounded-xl text-xs font-bold border transition">UZ</button>
@@ -56,7 +91,7 @@
             </div>
 
             <div class="border-t border-slate-800 pt-3 text-center">
-                <p class="text-[10px] text-slate-500">SmartStudy PWA v2.6</p>
+                <p class="text-[10px] text-slate-500">SmartStudy Universal v3.0</p>
             </div>
         </div>
         <div class="absolute inset-0 -z-10" onclick="toggleMenu()"></div>
@@ -64,7 +99,7 @@
 
     <main class="max-w-md mx-auto px-4 pt-4 space-y-5">
 
-        <!-- HEMIS Sozlamalar Paneli -->
+        <!-- HEMIS Sozlamalar Paneli (Faqat Talaba uchun) -->
         <div id="hemisCard" class="hidden bg-slate-900 border border-blue-500/40 rounded-2xl p-4 space-y-3 shadow-xl">
             <div class="flex justify-between items-center">
                 <span id="t-hemis-title" class="text-xs font-bold text-blue-400 uppercase">🎓 HEMIS Profilga Kirish</span>
@@ -104,7 +139,7 @@
         <div class="flex gap-2 overflow-x-auto py-1" id="daysTabs"></div>
 
         <!-- Ovozli o'qish paneli -->
-        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-4 shadow-lg space-y-3">
+        <div id="heroBanner" class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-4 shadow-lg space-y-3 transition-all">
             <div class="flex items-center justify-between">
                 <div>
                     <h2 id="selectedDayTitle" class="text-lg font-bold text-white">Jadval</h2>
@@ -115,9 +150,9 @@
                 </button>
             </div>
             
-            <div id="readingControlPanel" class="hidden bg-emerald-950/70 border border-emerald-300/40 rounded-xl p-3 flex items-center justify-between gap-2">
+            <div id="readingControlPanel" class="hidden bg-black/30 border border-white/25 rounded-xl p-3 flex items-center justify-between gap-2">
                 <div class="flex-1">
-                    <span id="t-reading-now" class="text-[10px] uppercase font-bold text-emerald-300 block">Hozir o'qilmoqda:</span>
+                    <span id="t-reading-now" class="text-[10px] uppercase font-bold text-emerald-200 block">Hozir o'qilmoqda:</span>
                     <p id="currentReadingText" class="text-xs font-semibold text-white">...</p>
                 </div>
                 <button onclick="nextStepLesson()" id="t-next-btn" class="bg-amber-400 text-slate-950 font-extrabold text-xs px-4 py-2.5 rounded-lg shadow active:scale-95 transition flex-shrink-0">
@@ -126,18 +161,15 @@
             </div>
         </div>
 
-        <!-- Pomodoro Taymer -->
+        <!-- Moslashuvchan Taymer (Bog'cha 15m / Maktab 45m / Talaba 80m) -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
             <div class="flex justify-between items-center mb-2">
-                <span id="t-timer-title" class="text-xs font-semibold text-blue-400">⏱ Real vaqt taymeri</span>
-                <div class="flex gap-1.5">
-                    <button onclick="setTimer(25)" class="text-[11px] bg-slate-800 px-2.5 py-1 rounded-md text-slate-300">25m</button>
-                    <button onclick="setTimer(5)" class="text-[11px] bg-slate-800 px-2.5 py-1 rounded-md text-slate-300">5m</button>
-                </div>
+                <span id="t-timer-title" class="text-xs font-semibold text-blue-400">⏱ Mashg'ulot taymeri</span>
+                <div class="flex gap-1.5" id="timerPresets"></div>
             </div>
             <div class="flex items-center justify-between mt-3">
                 <div>
-                    <div id="timerDisplay" class="text-4xl font-mono font-bold text-white tracking-wider">25:00</div>
+                    <div id="timerDisplay" class="text-4xl font-mono font-bold text-white tracking-wider">45:00</div>
                     <p id="activeSubject" class="text-[11px] text-slate-400">Taymer to'xtatilgan</p>
                 </div>
                 <div class="flex gap-2">
@@ -147,7 +179,7 @@
             </div>
         </div>
 
-        <!-- Dars qo'shish -->
+        <!-- Dars / Mashg'ulot qo'shish -->
         <form id="addLessonForm" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
             <p id="t-add-title" class="text-xs font-bold text-slate-300 uppercase">+ Qo'lda dars qo'shish</p>
             <div class="grid grid-cols-3 gap-2">
@@ -157,15 +189,54 @@
             <button type="submit" id="t-save-btn" class="w-full bg-slate-800 text-emerald-400 font-bold py-2.5 rounded-xl text-sm border border-slate-700">Saqlash</button>
         </form>
 
+        <!-- Jadval ro'yxati -->
         <div class="space-y-2.5" id="lessonsContainer"></div>
 
     </main>
 
     <script>
+        // 0 dan 59 gacha sonlarni SOF O'ZBEKCHA SO'ZGA o'giruvchi funksiya (ruscha talaffuzni 100% yo'qotadi)
+        function uzbekNumberToWords(num) {
+            num = parseInt(num, 10);
+            if (isNaN(num) || num === 0) return "nol";
+            const ones = ["", "bir", "ikki", "uch", "to'rt", "besh", "olti", "yetti", "sakkiz", "to'qqiz"];
+            const tens = ["", "o'n", "yigirma", "o'ttiz", "qirq", "ellik"];
+            if (num < 10) return ones[num];
+            const t = Math.floor(num / 10);
+            const o = num % 10;
+            return (tens[t] + (o > 0 ? " " + ones[o] : "")).trim();
+        }
+
+        // O'zbekcha tartib sonlar (1-dars -> birinchi dars)
+        function uzbekOrdinal(num) {
+            const ordinals = ["", "birinchi", "ikkinchi", "uchinchi", "to'rtinchi", "beshinchi", "oltinchi", "yettinchi", "sakkizinchi", "to'qqizinchi", "o'ninchi", "o'n birinchi", "o'n ikkinchi"];
+            return ordinals[num] || (uzbekNumberToWords(num) + "-inchi");
+        }
+
+        // Vaqtni (08:30) sof o'zbekcha matnga o'girish
+        function formatUzbekTimeSpeech(timeStr) {
+            const [hStr, mStr] = timeStr.split(':');
+            const h = parseInt(hStr, 10);
+            const m = parseInt(mStr, 10);
+            const hWord = uzbekNumberToWords(h);
+            if (m === 0) {
+                return `soat ${hWord} nol nol da`;
+            }
+            const mWord = uzbekNumberToWords(m);
+            return `soat ${hWord} dan ${mWord} daqiqa o'tganda`;
+        }
+
         const translations = {
             uz: {
                 todayPrefix: "Bugun",
+                menuTitle: "Sozlamalar",
+                menuRole: "Kim uchun (Rejim):",
                 menuLang: "Tilni tanlang:",
+                roles: {
+                    kindergarten: { badge: "🧸 Bog'cha", name: "Bog'cha", desc: "Mashg'ulot, ovqat va o'yin vaqti", itemWord: "mashg'ulot", addTitle: "+ Yangi mashg'ulot qo'shish", placeholder: "Masalan: Rasm chizish, Tushlik..." },
+                    school: { badge: "🎒 Maktab", name: "Maktab", desc: "45 daqiqalik darslar va tanaffus", itemWord: "dars", addTitle: "+ Yangi dars qo'shish", placeholder: "Masalan: Matematika, Ona tili..." },
+                    student: { badge: "🎓 Talaba", name: "Talaba", desc: "80 daqiqalik para va HEMIS", itemWord: "para", addTitle: "+ Yangi fan qo'shish", placeholder: "Masalan: Oliy matematika..." }
+                },
                 hemisTitle: "🎓 HEMIS Profilga Kirish",
                 close: "✕ Yopish",
                 hemisDomainLbl: "Universitet HEMIS manzili",
@@ -175,23 +246,20 @@
                 hemisConnecting: "Ulanmoqda...",
                 hemisWait: "⏳ HEMIS serveriga ulanilmoqda...",
                 hemisFillAll: "⚠️ Barcha maydonlarni to'ldiring!",
-                hemisCorsErr: "⚠️ Universitet serveri tashqi brauzerdan ulanishni cheklagan (CORS). Ma'lumotlaringiz saqlandi, darslarni pastdan kiritishingiz mumkin.",
+                hemisCorsErr: "⚠️ Universitet serveri tashqi brauzerdan ulanishni cheklagan (CORS). Ma'lumotlaringiz saqlandi, jadvalni pastdan kiritishingiz mumkin.",
                 scheduleSuffix: "jadvali",
-                lessonsCount: "ta dars",
                 readStart: "🔊 Boshidan o'qish",
                 readingNow: "Hozir o'qilmoqda:",
                 nextBtn: "Keyingisi ➡️",
-                timerTitle: "⏱ Real vaqt taymeri",
+                timerTitle: "⏱ Mashg'ulot va tanaffus taymeri",
                 timerStopped: "Taymer to'xtatilgan",
-                timerRunning: "Taymer ishlamoqda...",
+                timerRunning: "Vaqt ketmoqda...",
                 start: "Boshlash",
                 pause: "Pauza",
                 resume: "Davom etish",
-                addTitle: "+ Qo'lda dars qo'shish",
-                subjectPlaceholder: "Fan nomi...",
                 saveBtn: "Saqlash",
-                noLessons: "Bu kunga darslar kiritilmagan",
-                allRead: "Barcha darslar o'qib bo'lindi!",
+                noLessons: "Bu kunga hali jadval kiritilmagan",
+                allRead: "Barcha jadval o'qib bo'lindi!",
                 days: [
                     { id: 1, short: "Dush", full: "Dushanba" },
                     { id: 2, short: "Sesh", full: "Seshanba" },
@@ -202,23 +270,28 @@
                     { id: 0, short: "Yak", full: "Yakshanba" }
                 ],
                 voiceAudioOn: "Ovozli yordamchi faollashtirildi.",
-                voiceNoLessons: "Bugun darslar mavjud emas.",
-                voiceAllDone: "Bugungi barcha darslar tugadi.",
-                voiceSaved: "Yangi dars saqlandi.",
+                voiceNoLessons: "Bugun jadval bo'sh.",
+                voiceAllDone: "Bugungi barcha mashg'ulotlar tugadi.",
+                voiceSaved: "Muvaffaqiyatli saqlandi.",
                 voiceTimerStart: "Taymer ishga tushdi.",
                 voiceTimerEnd: "Vaqt tugadi! Biroz dam oling.",
-                voiceLessonRead: (num, time, name) => {
-                    const [h, m] = time.split(':');
-                    return `Navbatdagi ${num}-dars. Soat ${parseInt(h)} dan ${parseInt(m)} daqiqa o'tganda, ${name} fani boshlanadi.`;
+                voiceLessonRead: (num, time, name, roleItem) => {
+                    return `${uzbekOrdinal(num)} ${roleItem}. ${formatUzbekTimeSpeech(time)}, ${name} boshlanadi.`;
                 },
-                voiceAlert: (time, name) => {
-                    const [h, m] = time.split(':');
-                    return `Diqqat! Soat ${parseInt(h)} dan ${parseInt(m)} daqiqa o'tdi. ${name} darsini boshlash vaqti keldi.`;
+                voiceAlert: (time, name, roleItem) => {
+                    return `Diqqat! ${formatUzbekTimeSpeech(time)} bo'ldi. ${name} ${roleItem}ini boshlash vaqti keldi.`;
                 }
             },
             ru: {
                 todayPrefix: "Сегодня",
+                menuTitle: "Настройки",
+                menuRole: "Для кого (Режим):",
                 menuLang: "Выберите язык:",
+                roles: {
+                    kindergarten: { badge: "🧸 Садик", name: "Детский сад", desc: "Занятия, питание и тихий час", itemWord: "занятий", addTitle: "+ Добавить занятие", placeholder: "Например: Рисование, Обед..." },
+                    school: { badge: "🎒 Школа", name: "Школа", desc: "Уроки по 45 мин и перемена", itemWord: "уроков", addTitle: "+ Добавить урок", placeholder: "Например: Математика, Чтение..." },
+                    student: { badge: "🎓 Студент", name: "Студент", desc: "Пары по 80 мин и HEMIS", itemWord: "пар", addTitle: "+ Добавить предмет", placeholder: "Например: Высшая математика..." }
+                },
                 hemisTitle: "🎓 Вход в профиль HEMIS",
                 close: "✕ Закрыть",
                 hemisDomainLbl: "Адрес HEMIS университета",
@@ -228,23 +301,20 @@
                 hemisConnecting: "Подключение...",
                 hemisWait: "⏳ Подключение к серверу HEMIS...",
                 hemisFillAll: "⚠️ Заполните все поля!",
-                hemisCorsErr: "⚠️ Сервер университета блокирует прямой доступ из браузера (CORS). Данные сохранены, добавьте уроки вручную ниже.",
+                hemisCorsErr: "⚠️ Сервер университета блокирует прямой доступ из браузера (CORS). Добавьте расписание вручную ниже.",
                 scheduleSuffix: "— расписание",
-                lessonsCount: "уроков",
                 readStart: "🔊 Читать сначала",
                 readingNow: "Сейчас читается:",
                 nextBtn: "Далее ➡️",
-                timerTitle: "⏱ Таймер реального времени",
+                timerTitle: "⏱ Таймер занятия и перемены",
                 timerStopped: "Таймер остановлен",
                 timerRunning: "Таймер запущен...",
                 start: "Старт",
                 pause: "Пауза",
                 resume: "Продолжить",
-                addTitle: "+ Добавить урок вручную",
-                subjectPlaceholder: "Название предмета...",
                 saveBtn: "Сохранить",
-                noLessons: "На этот день уроки не добавлены",
-                allRead: "Все уроки прочитаны!",
+                noLessons: "На этот день расписание не добавлено",
+                allRead: "Все расписание прочитано!",
                 days: [
                     { id: 1, short: "Пн", full: "Понедельник" },
                     { id: 2, short: "Вт", full: "Вторник" },
@@ -255,17 +325,24 @@
                     { id: 0, short: "Вс", full: "Воскресенье" }
                 ],
                 voiceAudioOn: "Голосовой помощник активирован.",
-                voiceNoLessons: "На сегодня уроков нет.",
-                voiceAllDone: "Все уроки на сегодня прочитаны.",
-                voiceSaved: "Новый урок сохранен.",
+                voiceNoLessons: "На сегодня расписание пусто.",
+                voiceAllDone: "Все занятия на сегодня прочитаны.",
+                voiceSaved: "Успешно сохранено.",
                 voiceTimerStart: "Таймер запущен.",
                 voiceTimerEnd: "Время вышло! Немного отдохните.",
-                voiceLessonRead: (num, time, name) => `Урок номер ${num}. В ${time} начинается предмет ${name}.`,
-                voiceAlert: (time, name) => `Внимание! Время ${time}. Пора начинать урок ${name}.`
+                voiceLessonRead: (num, time, name) => `Номер ${num}. В ${time} начинается ${name}.`,
+                voiceAlert: (time, name) => `Внимание! Время ${time}. Пора начинать ${name}.`
             },
             en: {
                 todayPrefix: "Today",
+                menuTitle: "Settings",
+                menuRole: "Select Mode:",
                 menuLang: "Select Language:",
+                roles: {
+                    kindergarten: { badge: "🧸 Kids", name: "Kindergarten", desc: "Activities, meals & playtime", itemWord: "activities", addTitle: "+ Add Activity", placeholder: "e.g. Drawing, Lunch, Nap..." },
+                    school: { badge: "🎒 School", name: "School", desc: "45-min classes & breaks", itemWord: "classes", addTitle: "+ Add Class", placeholder: "e.g. Math, English, History..." },
+                    student: { badge: "🎓 University", name: "University", desc: "80-min lectures & HEMIS", itemWord: "lectures", addTitle: "+ Add Subject", placeholder: "e.g. Calculus, Physics..." }
+                },
                 hemisTitle: "🎓 HEMIS Profile Login",
                 close: "✕ Close",
                 hemisDomainLbl: "University HEMIS Domain",
@@ -275,23 +352,20 @@
                 hemisConnecting: "Connecting...",
                 hemisWait: "⏳ Connecting to HEMIS server...",
                 hemisFillAll: "⚠️ Please fill in all fields!",
-                hemisCorsErr: "⚠️ University server blocks direct browser access (CORS). Credentials saved, you can add lessons manually below.",
+                hemisCorsErr: "⚠️ University server blocks direct browser access (CORS). You can add items manually below.",
                 scheduleSuffix: "Schedule",
-                lessonsCount: "lessons",
                 readStart: "🔊 Read from start",
                 readingNow: "Currently reading:",
                 nextBtn: "Next ➡️",
-                timerTitle: "⏱ Real-Time Timer",
+                timerTitle: "⏱ Study & Break Timer",
                 timerStopped: "Timer stopped",
                 timerRunning: "Timer is running...",
                 start: "Start",
                 pause: "Pause",
                 resume: "Resume",
-                addTitle: "+ Add Lesson Manually",
-                subjectPlaceholder: "Subject name...",
                 saveBtn: "Save",
-                noLessons: "No lessons scheduled for this day",
-                allRead: "All lessons have been read!",
+                noLessons: "No schedule added for this day",
+                allRead: "All items have been read!",
                 days: [
                     { id: 1, short: "Mon", full: "Monday" },
                     { id: 2, short: "Tue", full: "Tuesday" },
@@ -302,17 +376,59 @@
                     { id: 0, short: "Sun", full: "Sunday" }
                 ],
                 voiceAudioOn: "Voice assistant activated.",
-                voiceNoLessons: "There are no lessons today.",
-                voiceAllDone: "All lessons for today are finished.",
-                voiceSaved: "New lesson saved.",
+                voiceNoLessons: "There are no items scheduled today.",
+                voiceAllDone: "All items for today are finished.",
+                voiceSaved: "Successfully saved.",
                 voiceTimerStart: "Timer started.",
                 voiceTimerEnd: "Time is up! Take a short break.",
-                voiceLessonRead: (num, time, name) => `Lesson number ${num}. At ${time}, ${name} begins.`,
+                voiceLessonRead: (num, time, name) => `Number ${num}. At ${time}, ${name} begins.`,
                 voiceAlert: (time, name) => `Attention! It is ${time}. Time to start ${name}.`
             }
         };
 
+        // Har bir rejim uchun taymer tugmalari va banner ranglari
+        const roleConfigs = {
+            kindergarten: {
+                defaultMins: 15,
+                presets: [15, 30, 5],
+                bannerClass: "bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-4 shadow-lg space-y-3 transition-all",
+                btnTextClass: "bg-white text-orange-800 font-bold text-xs px-4 py-3 rounded-xl shadow active:scale-95 transition",
+                defaultDemo: {
+                    1: [
+                        { time: "08:30", name: "Ertalabki badantarbiya", done: false },
+                        { time: "09:00", name: "Nonushta", done: false },
+                        { time: "10:00", name: "Rasm chizish mashg'uloti", done: false }
+                    ]
+                }
+            },
+            school: {
+                defaultMins: 45,
+                presets: [45, 10, 5],
+                bannerClass: "bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 shadow-lg space-y-3 transition-all",
+                btnTextClass: "bg-white text-indigo-900 font-bold text-xs px-4 py-3 rounded-xl shadow active:scale-95 transition",
+                defaultDemo: {
+                    1: [
+                        { time: "08:30", name: "Matematika", done: false },
+                        { time: "09:25", name: "Ona tili va adabiyot", done: false }
+                    ]
+                }
+            },
+            student: {
+                defaultMins: 80,
+                presets: [80, 25, 10],
+                bannerClass: "bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-4 shadow-lg space-y-3 transition-all",
+                btnTextClass: "bg-white text-emerald-800 font-bold text-xs px-4 py-3 rounded-xl shadow active:scale-95 transition",
+                defaultDemo: {
+                    1: [
+                        { time: "08:30", name: "Oliy matematika", done: false }
+                    ]
+                }
+            }
+        };
+
         let currentLang = localStorage.getItem('smartstudy_lang') || 'uz';
+        let currentRole = localStorage.getItem('smartstudy_role') || 'school';
+
         const todayObj = new Date();
         const realTodayId = todayObj.getDay();
         let selectedDayId = realTodayId;
@@ -322,10 +438,22 @@
         let currentReadingIndex = 0;
         let activeReadingList = [];
 
-        let weeklyData = JSON.parse(localStorage.getItem('offlineStudyData')) || {
-            1: [{ time: "08:30", name: "Oliy matematika", done: false }],
-            2: [], 3: [], 4: [], 5: [], 6: [], 0: []
-        };
+        // Har bir rejim uchun alohida jadval saqlanadi
+        function getStorageKey() {
+            return `smartstudy_data_${currentRole}`;
+        }
+
+        function loadRoleData() {
+            const saved = localStorage.getItem(getStorageKey());
+            if (saved) return JSON.parse(saved);
+            const demo = roleConfigs[currentRole].defaultDemo;
+            return {
+                1: demo[1] ? [...demo[1]] : [],
+                2: [], 3: [], 4: [], 5: [], 6: [], 0: []
+            };
+        }
+
+        let weeklyData = loadRoleData();
 
         if (localStorage.getItem('hemis_domain')) {
             document.getElementById('hemisDomain').value = localStorage.getItem('hemis_domain');
@@ -336,15 +464,38 @@
             document.getElementById('sideMenu').classList.toggle('hidden');
         }
 
+        function setRole(role) {
+            currentRole = role;
+            localStorage.setItem('smartstudy_role', role);
+            weeklyData = loadRoleData();
+            stopReadingPanel();
+            setTimer(roleConfigs[role].defaultMins);
+            applyUI();
+        }
+
         function setLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('smartstudy_lang', lang);
             stopReadingPanel();
-            applyLanguage();
+            applyUI();
         }
 
-        function applyLanguage() {
+        function applyUI() {
             const t = translations[currentLang];
+            const rConf = roleConfigs[currentRole];
+            const rLang = t.roles[currentRole];
+
+            // Menyu ichidagi rejim tugmalarini yangilash
+            ['kindergarten', 'school', 'student'].forEach(r => {
+                const btn = document.getElementById(`role-${r}`);
+                if (r === currentRole) {
+                    btn.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-blue-600/20 text-blue-300 border border-blue-500 transition text-left";
+                } else {
+                    btn.className = "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-slate-950 text-slate-400 border border-slate-800 hover:text-white transition text-left";
+                }
+            });
+
+            // Menyu ichidagi til tugmalarini yangilash
             ['uz', 'ru', 'en'].forEach(l => {
                 const btn = document.getElementById(`m-lang-${l}`);
                 if (l === currentLang) {
@@ -354,7 +505,44 @@
                 }
             });
 
+            // HEMIS tugmasini faqat Talaba rejimida ko'rsatish
+            const hemisBtn = document.getElementById('hemisHeaderBtn');
+            const hemisCard = document.getElementById('hemisCard');
+            if (currentRole === 'student') {
+                hemisBtn.classList.remove('hidden');
+            } else {
+                hemisBtn.classList.add('hidden');
+                hemisCard.classList.add('hidden');
+            }
+
+            // Rejim badge va banner rangini yangilash
+            document.getElementById('roleBadge').innerText = rLang.badge;
+            document.getElementById('heroBanner').className = rConf.bannerClass;
+            document.getElementById('t-read-start').className = rConf.btnTextClass;
+
+            // Taymer preset tugmalarini chizish
+            const presetsBox = document.getElementById('timerPresets');
+            presetsBox.innerHTML = '';
+            rConf.presets.forEach(mins => {
+                const b = document.createElement('button');
+                b.onclick = () => setTimer(mins);
+                b.className = "text-[11px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-md text-slate-300 font-semibold";
+                b.innerText = `${mins}m`;
+                presetsBox.appendChild(b);
+            });
+
+            // Barcha matnlarni tarjima qilish
+            document.getElementById('t-menu-title').innerText = t.menuTitle;
+            document.getElementById('t-menu-role').innerText = t.menuRole;
             document.getElementById('t-menu-lang').innerText = t.menuLang;
+
+            document.getElementById('t-role-kg-name').innerText = t.roles.kindergarten.name;
+            document.getElementById('t-role-kg-desc').innerText = t.roles.kindergarten.desc;
+            document.getElementById('t-role-sc-name').innerText = t.roles.school.name;
+            document.getElementById('t-role-sc-desc').innerText = t.roles.school.desc;
+            document.getElementById('t-role-st-name').innerText = t.roles.student.name;
+            document.getElementById('t-role-st-desc').innerText = t.roles.student.desc;
+
             const todayObjLang = t.days.find(d => d.id === realTodayId);
             document.getElementById('todayInfo').innerText = `${t.todayPrefix}: ${todayObjLang.full}`;
             document.getElementById('t-hemis-title').innerText = t.hemisTitle;
@@ -369,8 +557,8 @@
             document.getElementById('t-timer-title').innerText = t.timerTitle;
             document.getElementById('activeSubject').innerText = timerRunning ? t.timerRunning : t.timerStopped;
             document.getElementById('startBtn').innerText = timerRunning ? t.pause : t.start;
-            document.getElementById('t-add-title').innerText = t.addTitle;
-            document.getElementById('lessonName').placeholder = t.subjectPlaceholder;
+            document.getElementById('t-add-title').innerText = rLang.addTitle;
+            document.getElementById('lessonName').placeholder = rLang.placeholder;
             document.getElementById('t-save-btn').innerText = t.saveBtn;
 
             renderTabs();
@@ -456,7 +644,7 @@
                         }
                     });
                     weeklyData = newSchedule;
-                    localStorage.setItem('offlineStudyData', JSON.stringify(weeklyData));
+                    localStorage.setItem(getStorageKey(), JSON.stringify(weeklyData));
                     renderLessons();
                     toggleHemisModal();
                 }
@@ -530,10 +718,11 @@
 
         function renderLessons() {
             const t = translations[currentLang];
+            const rLang = t.roles[currentRole];
             const dayObj = t.days.find(d => d.id === selectedDayId);
             const lessons = weeklyData[selectedDayId] || [];
             document.getElementById('selectedDayTitle').innerText = `${dayObj.full} ${t.scheduleSuffix}`;
-            document.getElementById('dayStats').innerText = `${lessons.length} ${t.lessonsCount}`;
+            document.getElementById('dayStats').innerText = `${lessons.length} ta ${rLang.itemWord}`;
 
             const container = document.getElementById('lessonsContainer');
             container.innerHTML = '';
@@ -574,10 +763,11 @@
 
         function readCurrentIndexLesson() {
             const t = translations[currentLang];
+            const rLang = t.roles[currentRole];
             if (currentReadingIndex < activeReadingList.length) {
                 const lesson = activeReadingList[currentReadingIndex];
                 const displayInfo = `#${currentReadingIndex + 1} | ${lesson.time} — ${lesson.name}`;
-                const voiceInfo = t.voiceLessonRead(currentReadingIndex + 1, lesson.time, lesson.name);
+                const voiceInfo = t.voiceLessonRead(currentReadingIndex + 1, lesson.time, lesson.name, rLang.itemWord);
                 document.getElementById('currentReadingText').innerText = displayInfo;
                 speakText(voiceInfo);
             } else {
@@ -605,7 +795,7 @@
             if (!weeklyData[selectedDayId]) weeklyData[selectedDayId] = [];
             weeklyData[selectedDayId].push({ time, name, done: false });
             weeklyData[selectedDayId].sort((a, b) => a.time.localeCompare(b.time));
-            localStorage.setItem('offlineStudyData', JSON.stringify(weeklyData));
+            localStorage.setItem(getStorageKey(), JSON.stringify(weeklyData));
             renderLessons();
             e.target.reset();
             speakText(t.voiceSaved);
@@ -613,29 +803,30 @@
 
         function toggleDone(index) {
             weeklyData[selectedDayId][index].done = !weeklyData[selectedDayId][index].done;
-            localStorage.setItem('offlineStudyData', JSON.stringify(weeklyData));
+            localStorage.setItem(getStorageKey(), JSON.stringify(weeklyData));
             renderLessons();
         }
 
         function removeLesson(index) {
             weeklyData[selectedDayId].splice(index, 1);
-            localStorage.setItem('offlineStudyData', JSON.stringify(weeklyData));
+            localStorage.setItem(getStorageKey(), JSON.stringify(weeklyData));
             renderLessons();
         }
 
         setInterval(() => {
             const t = translations[currentLang];
+            const rLang = t.roles[currentRole];
             const now = new Date();
             const currentDay = now.getDay();
             const currentHM = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            const minuteKey = `${currentDay}-${currentHM}`;
+            const minuteKey = `${currentRole}-${currentDay}-${currentHM}`;
 
             if (lastCheckedMinute !== minuteKey) {
                 const todaysLessons = weeklyData[currentDay] || [];
                 todaysLessons.forEach(lesson => {
                     if (lesson.time === currentHM && !lesson.done) {
                         lastCheckedMinute = minuteKey;
-                        speakText(t.voiceAlert(lesson.time, lesson.name));
+                        speakText(t.voiceAlert(lesson.time, lesson.name, rLang.itemWord));
                     }
                 });
             }
@@ -663,7 +854,8 @@
                 document.getElementById('startBtn').innerText = t.resume;
                 document.getElementById('activeSubject').innerText = t.timerStopped;
             } else {
-                if (!targetEndTime) targetEndTime = Date.now() + 25 * 60 * 1000;
+                const defaultM = roleConfigs[currentRole].defaultMins;
+                if (!targetEndTime || targetEndTime <= Date.now()) targetEndTime = Date.now() + defaultM * 60 * 1000;
                 timerRunning = true;
                 document.getElementById('startBtn').innerText = t.pause;
                 document.getElementById('activeSubject').innerText = t.timerRunning;
@@ -687,10 +879,11 @@
 
         function resetTimer() {
             const t = translations[currentLang];
+            const defaultM = roleConfigs[currentRole].defaultMins;
             clearInterval(timerInterval);
             timerRunning = false;
-            targetEndTime = Date.now() + 25 * 60 * 1000;
-            updateTimerView(25 * 60);
+            targetEndTime = Date.now() + defaultM * 60 * 1000;
+            updateTimerView(defaultM * 60);
             document.getElementById('startBtn').innerText = t.start;
             document.getElementById('activeSubject').innerText = t.timerStopped;
         }
@@ -701,7 +894,9 @@
             document.getElementById('timerDisplay').innerText = `${m}:${s}`;
         }
 
-        applyLanguage();
+        // Boshlang'ich holatni yuklash
+        setTimer(roleConfigs[currentRole].defaultMins);
+        applyUI();
     </script>
 </body>
 </html>
