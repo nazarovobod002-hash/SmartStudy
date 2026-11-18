@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0f172a">
-    <title>SmartStudy - Bog'cha, Maktab va Talaba</title>
+    <title>SmartStudy - Real Vaqt & Kalendar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen pb-10 font-sans select-none">
 
-    <!-- Yuqori panel -->
+    <!-- Yuqori panel: Real vaqt soati va Kalendar ma'lumoti bilan -->
     <header class="bg-slate-900/90 backdrop-blur-md sticky top-0 z-20 border-b border-slate-800 px-4 py-3 flex justify-between items-center">
         <div class="flex items-center gap-3">
             <button onclick="toggleMenu()" class="text-slate-300 hover:text-white p-1.5 focus:outline-none active:scale-95 transition">
@@ -27,7 +27,8 @@
                         🎓 Talaba
                     </span>
                 </div>
-                <p id="todayInfo" class="text-[11px] text-slate-400">Yuklanmoqda...</p>
+                <!-- Real vaqt va kalendar matni -->
+                <p id="todayInfo" class="text-[11px] text-slate-400 font-mono">Yuklanmoqda...</p>
             </div>
         </div>
 
@@ -51,7 +52,7 @@
                     <button onclick="toggleMenu()" class="text-slate-400 hover:text-white text-base px-2 py-1">✕</button>
                 </div>
 
-                <!-- 1. Foydalanuvchi toifasi (Bog'cha / Maktab / Talaba) -->
+                <!-- 1. Foydalanuvchi toifasi -->
                 <div class="space-y-2">
                     <label id="t-menu-role" class="text-xs text-slate-400 font-semibold block">Kim uchun (Rejim):</label>
                     <div class="grid grid-cols-1 gap-2">
@@ -91,7 +92,7 @@
             </div>
 
             <div class="border-t border-slate-800 pt-3 text-center">
-                <p class="text-[10px] text-slate-500">SmartStudy Universal v3.0</p>
+                <p class="text-[10px] text-slate-500">SmartStudy Live v3.1</p>
             </div>
         </div>
         <div class="absolute inset-0 -z-10" onclick="toggleMenu()"></div>
@@ -135,7 +136,7 @@
             </div>
         </div>
 
-        <!-- Hafta kunlari tablari -->
+        <!-- Hafta kunlari va Kalendar tablari -->
         <div class="flex gap-2 overflow-x-auto py-1" id="daysTabs"></div>
 
         <!-- Ovozli o'qish paneli -->
@@ -161,16 +162,17 @@
             </div>
         </div>
 
-        <!-- Moslashuvchan Taymer (Bog'cha 15m / Maktab 45m / Talaba 80m) -->
+        <!-- Real Vaqt Soati va Taymer paneli -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-md">
             <div class="flex justify-between items-center mb-2">
-                <span id="t-timer-title" class="text-xs font-semibold text-blue-400">⏱ Mashg'ulot taymeri</span>
+                <span id="t-timer-title" class="text-xs font-semibold text-blue-400">⏱ Vaqt va Taymer</span>
                 <div class="flex gap-1.5" id="timerPresets"></div>
             </div>
             <div class="flex items-center justify-between mt-3">
                 <div>
-                    <div id="timerDisplay" class="text-4xl font-mono font-bold text-white tracking-wider">45:00</div>
-                    <p id="activeSubject" class="text-[11px] text-slate-400">Taymer to'xtatilgan</p>
+                    <!-- Jonli soat va taymer raqami -->
+                    <div id="timerDisplay" class="text-4xl font-mono font-bold text-white tracking-wider">00:00:00</div>
+                    <p id="activeSubject" class="text-[11px] text-slate-400">Jonli real vaqt soati</p>
                 </div>
                 <div class="flex gap-2">
                     <button id="startBtn" onclick="toggleTimer()" class="bg-blue-600 text-white font-bold text-sm px-5 py-3 rounded-xl">Boshlash</button>
@@ -195,7 +197,7 @@
     </main>
 
     <script>
-        // 0 dan 59 gacha sonlarni SOF O'ZBEKCHA SO'ZGA o'giruvchi funksiya (ruscha talaffuzni 100% yo'qotadi)
+        // Sonlarni so'zga o'giruvchi funksiyalar (100% o'zbekcha talaffuz uchun)
         function uzbekNumberToWords(num) {
             num = parseInt(num, 10);
             if (isNaN(num) || num === 0) return "nol";
@@ -207,13 +209,11 @@
             return (tens[t] + (o > 0 ? " " + ones[o] : "")).trim();
         }
 
-        // O'zbekcha tartib sonlar (1-dars -> birinchi dars)
         function uzbekOrdinal(num) {
             const ordinals = ["", "birinchi", "ikkinchi", "uchinchi", "to'rtinchi", "beshinchi", "oltinchi", "yettinchi", "sakkizinchi", "to'qqizinchi", "o'ninchi", "o'n birinchi", "o'n ikkinchi"];
             return ordinals[num] || (uzbekNumberToWords(num) + "-inchi");
         }
 
-        // Vaqtni (08:30) sof o'zbekcha matnga o'girish
         function formatUzbekTimeSpeech(timeStr) {
             const [hStr, mStr] = timeStr.split(':');
             const h = parseInt(hStr, 10);
@@ -251,9 +251,9 @@
                 readStart: "🔊 Boshidan o'qish",
                 readingNow: "Hozir o'qilmoqda:",
                 nextBtn: "Keyingisi ➡️",
-                timerTitle: "⏱ Mashg'ulot va tanaffus taymeri",
-                timerStopped: "Taymer to'xtatilgan",
-                timerRunning: "Vaqt ketmoqda...",
+                timerTitle: "⏱ Real Vaqt va Taymer",
+                timerStopped: "Jonli soat ishlamoqda",
+                timerRunning: "Taymer vaqti ketmoqda...",
                 start: "Boshlash",
                 pause: "Pauza",
                 resume: "Davom etish",
@@ -269,7 +269,8 @@
                     { id: 6, short: "Shan", full: "Shanba" },
                     { id: 0, short: "Yak", full: "Yakshanba" }
                 ],
-                voiceAudioOn: "Ovozli yordamchi faollashtirildi.",
+                months: ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"],
+                voiceAudioOn: "Ovozli yordamchi va real vaqt soati faollashtirildi.",
                 voiceNoLessons: "Bugun jadval bo'sh.",
                 voiceAllDone: "Bugungi barcha mashg'ulotlar tugadi.",
                 voiceSaved: "Muvaffaqiyatli saqlandi.",
@@ -306,8 +307,8 @@
                 readStart: "🔊 Читать сначала",
                 readingNow: "Сейчас читается:",
                 nextBtn: "Далее ➡️",
-                timerTitle: "⏱ Таймер занятия и перемены",
-                timerStopped: "Таймер остановлен",
+                timerTitle: "⏱ Реальное время и Таймер",
+                timerStopped: "Живые часы работают",
                 timerRunning: "Таймер запущен...",
                 start: "Старт",
                 pause: "Пауза",
@@ -324,7 +325,8 @@
                     { id: 6, short: "Сб", full: "Суббота" },
                     { id: 0, short: "Вс", full: "Воскресенье" }
                 ],
-                voiceAudioOn: "Голосовой помощник активирован.",
+                months: ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"],
+                voiceAudioOn: "Голосовой помощник и живые часы активированы.",
                 voiceNoLessons: "На сегодня расписание пусто.",
                 voiceAllDone: "Все занятия на сегодня прочитаны.",
                 voiceSaved: "Успешно сохранено.",
@@ -357,8 +359,8 @@
                 readStart: "🔊 Read from start",
                 readingNow: "Currently reading:",
                 nextBtn: "Next ➡️",
-                timerTitle: "⏱ Study & Break Timer",
-                timerStopped: "Timer stopped",
+                timerTitle: "⏱ Real-Time & Timer",
+                timerStopped: "Live clock running",
                 timerRunning: "Timer is running...",
                 start: "Start",
                 pause: "Pause",
@@ -375,7 +377,8 @@
                     { id: 6, short: "Sat", full: "Saturday" },
                     { id: 0, short: "Sun", full: "Sunday" }
                 ],
-                voiceAudioOn: "Voice assistant activated.",
+                months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                voiceAudioOn: "Voice assistant and live clock activated.",
                 voiceNoLessons: "There are no items scheduled today.",
                 voiceAllDone: "All items for today are finished.",
                 voiceSaved: "Successfully saved.",
@@ -386,7 +389,6 @@
             }
         };
 
-        // Har bir rejim uchun taymer tugmalari va banner ranglari
         const roleConfigs = {
             kindergarten: {
                 defaultMins: 15,
@@ -429,8 +431,8 @@
         let currentLang = localStorage.getItem('smartstudy_lang') || 'uz';
         let currentRole = localStorage.getItem('smartstudy_role') || 'school';
 
-        const todayObj = new Date();
-        const realTodayId = todayObj.getDay();
+        const realDateObj = new Date();
+        const realTodayId = realDateObj.getDay();
         let selectedDayId = realTodayId;
         let audioActive = false;
         let lastCheckedMinute = "";
@@ -438,7 +440,11 @@
         let currentReadingIndex = 0;
         let activeReadingList = [];
 
-        // Har bir rejim uchun alohida jadval saqlanadi
+        // Taymer rejimi o'zgaruvchilari
+        let timerModeActive = false;
+        let targetEndTime = 0;
+        let timerInterval = null;
+
         function getStorageKey() {
             return `smartstudy_data_${currentRole}`;
         }
@@ -469,7 +475,7 @@
             localStorage.setItem('smartstudy_role', role);
             weeklyData = loadRoleData();
             stopReadingPanel();
-            setTimer(roleConfigs[role].defaultMins);
+            resetTimer();
             applyUI();
         }
 
@@ -485,7 +491,6 @@
             const rConf = roleConfigs[currentRole];
             const rLang = t.roles[currentRole];
 
-            // Menyu ichidagi rejim tugmalarini yangilash
             ['kindergarten', 'school', 'student'].forEach(r => {
                 const btn = document.getElementById(`role-${r}`);
                 if (r === currentRole) {
@@ -495,7 +500,6 @@
                 }
             });
 
-            // Menyu ichidagi til tugmalarini yangilash
             ['uz', 'ru', 'en'].forEach(l => {
                 const btn = document.getElementById(`m-lang-${l}`);
                 if (l === currentLang) {
@@ -505,7 +509,6 @@
                 }
             });
 
-            // HEMIS tugmasini faqat Talaba rejimida ko'rsatish
             const hemisBtn = document.getElementById('hemisHeaderBtn');
             const hemisCard = document.getElementById('hemisCard');
             if (currentRole === 'student') {
@@ -515,23 +518,20 @@
                 hemisCard.classList.add('hidden');
             }
 
-            // Rejim badge va banner rangini yangilash
             document.getElementById('roleBadge').innerText = rLang.badge;
             document.getElementById('heroBanner').className = rConf.bannerClass;
             document.getElementById('t-read-start').className = rConf.btnTextClass;
 
-            // Taymer preset tugmalarini chizish
             const presetsBox = document.getElementById('timerPresets');
             presetsBox.innerHTML = '';
             rConf.presets.forEach(mins => {
                 const b = document.createElement('button');
-                b.onclick = () => setTimer(mins);
+                b.onclick = () => startCustomTimer(mins);
                 b.className = "text-[11px] bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-md text-slate-300 font-semibold";
                 b.innerText = `${mins}m`;
                 presetsBox.appendChild(b);
             });
 
-            // Barcha matnlarni tarjima qilish
             document.getElementById('t-menu-title').innerText = t.menuTitle;
             document.getElementById('t-menu-role').innerText = t.menuRole;
             document.getElementById('t-menu-lang').innerText = t.menuLang;
@@ -543,8 +543,8 @@
             document.getElementById('t-role-st-name').innerText = t.roles.student.name;
             document.getElementById('t-role-st-desc').innerText = t.roles.student.desc;
 
-            const todayObjLang = t.days.find(d => d.id === realTodayId);
-            document.getElementById('todayInfo').innerText = `${t.todayPrefix}: ${todayObjLang.full}`;
+            updateLiveClockAndCalendar();
+
             document.getElementById('t-hemis-title').innerText = t.hemisTitle;
             document.getElementById('t-close').innerText = t.close;
             document.getElementById('t-hemis-domain-lbl').innerText = t.hemisDomainLbl;
@@ -555,14 +555,34 @@
             document.getElementById('t-reading-now').innerText = t.readingNow;
             document.getElementById('t-next-btn').innerText = t.nextBtn;
             document.getElementById('t-timer-title').innerText = t.timerTitle;
-            document.getElementById('activeSubject').innerText = timerRunning ? t.timerRunning : t.timerStopped;
-            document.getElementById('startBtn').innerText = timerRunning ? t.pause : t.start;
             document.getElementById('t-add-title').innerText = rLang.addTitle;
             document.getElementById('lessonName').placeholder = rLang.placeholder;
             document.getElementById('t-save-btn').innerText = t.saveBtn;
 
             renderTabs();
             renderLessons();
+        }
+
+        // Real vaqt soati va kalendarni yangilash funksiyasi
+        function updateLiveClockAndCalendar() {
+            const t = translations[currentLang];
+            const now = new Date();
+            const dayName = t.days.find(d => d.id === now.getDay()).full;
+            const monthName = t.months[now.getMonth()];
+            const dateNum = now.getDate();
+
+            // Kalendar matni (Masalan: 18-noyabr, Chorshanba)
+            document.getElementById('todayInfo').innerText = `${dateNum}-${monthName}, ${dayName}`;
+
+            // Agar taymer ishlamayotgan bo'lsa, ekran bosh ekran soatini (HH:MM:SS) ko'rsatib turadi
+            if (!timerModeActive) {
+                const hh = now.getHours().toString().padStart(2, '0');
+                const mm = now.getMinutes().toString().padStart(2, '0');
+                const ss = now.getSeconds().toString().padStart(2, '0');
+                document.getElementById('timerDisplay').innerText = `${hh}:${mm}:${ss}`;
+                document.getElementById('activeSubject').innerText = t.timerStopped;
+                document.getElementById('startBtn').innerText = t.start;
+            }
         }
 
         function togglePasswordVisibility() {
@@ -710,8 +730,10 @@
                     renderTabs(); 
                     renderLessons(); 
                 };
-                btn.className = `flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition ${day.id === selectedDayId ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-900 text-slate-400 border border-slate-800'}`;
-                btn.innerText = day.short;
+                // Agar bugungi kun bo'lsa, maxsus ramka beramiz
+                const isToday = day.id === realTodayId;
+                btn.className = `flex-shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition ${day.id === selectedDayId ? 'bg-blue-600 text-white shadow-md' : (isToday ? 'bg-slate-900 text-emerald-400 border border-emerald-500/40' : 'bg-slate-900 text-slate-400 border border-slate-800')}`;
+                btn.innerText = `${day.short} ${isToday ? '📍' : ''}`;
                 container.appendChild(btn);
             });
         }
@@ -813,10 +835,86 @@
             renderLessons();
         }
 
-        setInterval(() => {
+        // Taymer va real vaqtni boshqarish funksiyalari
+        function startCustomTimer(mins) {
+            clearInterval(timerInterval);
+            timerModeActive = true;
+            targetEndTime = Date.now() + mins * 60 * 1000;
+            updateTimerCountdownView(mins * 60);
             const t = translations[currentLang];
-            const rLang = t.roles[currentRole];
+            document.getElementById('startBtn').innerText = t.pause;
+            document.getElementById('activeSubject').innerText = t.timerRunning;
+            speakText(t.voiceTimerStart);
+            runCountdownInterval();
+        }
+
+        function toggleTimer() {
+            const t = translations[currentLang];
+            if (timerModeActive) {
+                // Pauza qilish
+                clearInterval(timerInterval);
+                timerModeActive = false;
+                document.getElementById('startBtn').innerText = t.resume;
+                document.getElementById('activeSubject').innerText = t.timerStopped;
+            } else {
+                // Davom etish yoki yangidan boshlash
+                const defaultM = roleConfigs[currentRole].defaultMins;
+                if (!targetEndTime || targetEndTime <= Date.now()) {
+                    targetEndTime = Date.now() + defaultM * 60 * 1000;
+                }
+                timerModeActive = true;
+                document.getElementById('startBtn').innerText = t.pause;
+                document.getElementById('activeSubject').innerText = t.timerRunning;
+                speakText(t.voiceTimerStart);
+                runCountdownInterval();
+            }
+        }
+
+        function runCountdownInterval() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const remainingSec = Math.round((targetEndTime - Date.now()) / 1000);
+                if (remainingSec > 0) {
+                    updateTimerCountdownView(remainingSec);
+                } else {
+                    clearInterval(timerInterval);
+                    timerModeActive = false;
+                    updateTimerCountdownView(0);
+                    const t = translations[currentLang];
+                    document.getElementById('startBtn').innerText = t.start;
+                    document.getElementById('activeSubject').innerText = t.timerStopped;
+                    speakText(t.voiceTimerEnd);
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerModeActive = false;
+            const defaultM = roleConfigs[currentRole].defaultMins;
+            targetEndTime = Date.now() + defaultM * 60 * 1000;
+            updateLiveClockAndCalendar();
+        }
+
+        function updateTimerCountdownView(totalSec) {
+            const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+            const s = (totalSec % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+        }
+
+        // Asosiy har sekundlik va minutlik sikl (Real vaqt soati va Dars eslatmasi)
+        setInterval(() => {
             const now = new Date();
+            
+            // 1. Agar taymer ishlamayotgan bo'lsa, ekran doimo jonli soatni ko'rsatadi
+            if (!timerModeActive) {
+                const hh = now.getHours().toString().padStart(2, '0');
+                const mm = now.getMinutes().toString().padStart(2, '0');
+                const ss = now.getSeconds().toString().padStart(2, '0');
+                document.getElementById('timerDisplay').innerText = `${hh}:${mm}:${ss}`;
+            }
+
+            // 2. Har minutda dars vaqtini tekshirib, o'zbekcha ovozda eslatish
             const currentDay = now.getDay();
             const currentHM = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
             const minuteKey = `${currentRole}-${currentDay}-${currentHM}`;
@@ -826,76 +924,18 @@
                 todaysLessons.forEach(lesson => {
                     if (lesson.time === currentHM && !lesson.done) {
                         lastCheckedMinute = minuteKey;
+                        const t = translations[currentLang];
+                        const rLang = t.roles[currentRole];
                         speakText(t.voiceAlert(lesson.time, lesson.name, rLang.itemWord));
                     }
                 });
             }
         }, 1000);
 
-        let targetEndTime = 0;
-        let timerRunning = false;
-        let timerInterval = null;
+        // Har soatda kalendarni yangilab turish uchun
+        setInterval(updateLiveClockAndCalendar, 60000);
 
-        function setTimer(mins) {
-            const t = translations[currentLang];
-            clearInterval(timerInterval);
-            timerRunning = false;
-            targetEndTime = Date.now() + mins * 60 * 1000;
-            updateTimerView(mins * 60);
-            document.getElementById('startBtn').innerText = t.start;
-            document.getElementById('activeSubject').innerText = t.timerStopped;
-        }
-
-        function toggleTimer() {
-            const t = translations[currentLang];
-            if (timerRunning) {
-                clearInterval(timerInterval);
-                timerRunning = false;
-                document.getElementById('startBtn').innerText = t.resume;
-                document.getElementById('activeSubject').innerText = t.timerStopped;
-            } else {
-                const defaultM = roleConfigs[currentRole].defaultMins;
-                if (!targetEndTime || targetEndTime <= Date.now()) targetEndTime = Date.now() + defaultM * 60 * 1000;
-                timerRunning = true;
-                document.getElementById('startBtn').innerText = t.pause;
-                document.getElementById('activeSubject').innerText = t.timerRunning;
-                speakText(t.voiceTimerStart);
-                
-                timerInterval = setInterval(() => {
-                    const remainingSec = Math.round((targetEndTime - Date.now()) / 1000);
-                    if (remainingSec > 0) {
-                        updateTimerView(remainingSec);
-                    } else {
-                        clearInterval(timerInterval);
-                        timerRunning = false;
-                        updateTimerView(0);
-                        document.getElementById('startBtn').innerText = t.start;
-                        document.getElementById('activeSubject').innerText = t.timerStopped;
-                        speakText(t.voiceTimerEnd);
-                    }
-                }, 1000);
-            }
-        }
-
-        function resetTimer() {
-            const t = translations[currentLang];
-            const defaultM = roleConfigs[currentRole].defaultMins;
-            clearInterval(timerInterval);
-            timerRunning = false;
-            targetEndTime = Date.now() + defaultM * 60 * 1000;
-            updateTimerView(defaultM * 60);
-            document.getElementById('startBtn').innerText = t.start;
-            document.getElementById('activeSubject').innerText = t.timerStopped;
-        }
-
-        function updateTimerView(totalSec) {
-            const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
-            const s = (totalSec % 60).toString().padStart(2, '0');
-            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-        }
-
-        // Boshlang'ich holatni yuklash
-        setTimer(roleConfigs[currentRole].defaultMins);
+        // Boshlang'ich yuklash
         applyUI();
     </script>
 </body>
